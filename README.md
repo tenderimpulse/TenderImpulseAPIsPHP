@@ -1,6 +1,6 @@
-# Tender Impulse API PHP
+# Tender Impulse API Python
 
-PHP example code demonstrating how to integrate with Tender Impulse APIs to retrieve global tender notices, process encrypted API responses, validate data integrity, and download associated tender documents.
+Python example code demonstrating how to integrate with Tender Impulse APIs to retrieve global tender notices, process encrypted API responses, validate data integrity, and download associated tender documents.
 
 Tender Impulse provides access to over **20,000 global tenders daily**, helping organizations discover procurement opportunities from government agencies, public sector organizations, and international institutions worldwide.
 
@@ -12,6 +12,14 @@ https://tenderimpulse.com/request-call-back
 
 Once your request has been approved, you will receive the credentials required to authenticate and access the APIs.
 
+## Installation
+
+Install the required dependencies:
+
+```bash
+pip install requests pycryptodome
+```
+
 ## Features
 
 * Retrieve global tender notices
@@ -19,5 +27,20 @@ Once your request has been approved, you will receive the credentials required t
 * Secure API authentication using access tokens
 * AES-encrypted response handling
 * Response integrity validation using CRC/MD5
+
+## Usage
+
+Configure your credentials in `example.py`:
+
+```python
+access_token = "your_access_token"
+key = "your_encryption_key"
+```
+
+Then run:
+
+```bash
+python example.py
+```
 
 For more information about Tender Impulse and its services, visit https://tenderimpulse.com.
