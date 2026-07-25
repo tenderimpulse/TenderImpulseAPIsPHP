@@ -1,17 +1,17 @@
 <?php
 /**
- * Tender Impulse tender API client library for PHP.
+ * Tender Impulse contract award API client library for PHP.
  *
  * Provides functionality to:
- * - Retrieve tender notices
+ * - Retrieve contract awards
  * - Authenticate using Bearer tokens
  * - Decrypt API responses
  * - Validate response integrity using CRC/MD5 checksums
- * - Download and store tender documents
+ * - Download and store contract award documents
  * - Process API data into Array
  *
  */
-class TenderImpulseClient
+class TenderImpulseContractAwardClient
 {
     private string $storePath;
     private string $accessToken;
@@ -24,16 +24,16 @@ class TenderImpulseClient
     }
 
     /**
-     * Calls Tender Impulse API and retrieves tender records.
+     * Calls Tender Impulse API and retrieves contract award records.
      *
      * @param lastId Fetch id already processed. The API returns the records
      *               that come after it, plus the fetchid to use next time.
-     * @return Array containing status, tender data and the last fetch id.
+     * @return Array containing status, contract award data and the last fetch id.
      */
-    public function getTenders(int $lastId): array {
+    public function getContractAwards(int $lastId): array {
         try {
 
-            $url = "https://tenderimpulse.com/web-api/tender/v2/uat.php?lastid={$lastId}";
+            $url = "https://tenderimpulse.com/web-api/contract-awards/v2/uat.php?lastid={$lastId}";
 
             $ch = curl_init();
 
@@ -87,44 +87,46 @@ class TenderImpulseClient
                 throw new Exception($details['msg']);
             }
 
-            $responseTenders = [];
+            $responseContracts = [];
 
-            foreach ($details['tenders'] as $tender) {
+            foreach ($details['contracts'] as $contract) {
 
-                $this->downloadFile(
-                    $tender['filepath'],
-                    $tender['filename']
-                );
+                // Contract awards do not always come with a document.
+                if (!empty($contract['filename'])) {
 
-                $responseTenders[] = [
-                    'tender_id'         => $tender['tender_id'],
-                    'title'             => $tender['title'],
-                    'authority_name'    => $tender['authority_name'],
-                    'address'           => $tender['address'],
-                    'tel'               => $tender['tel'],
-                    'fax'               => $tender['fax'],
-                    'email'             => $tender['email'],
-                    'web'               => $tender['web'],
-                    'contact_name'      => $tender['contact_name'],
-                    'contract_type'     => $tender['contract_type'],
-                    'sectors'           => $tender['sectors'],
-                    'cpv_codes'         => $tender['cpv_codes'],
-                    'country'           => $tender['country'],
-                    'original_source'   => $tender['original_source'],
-                    'location'          => $tender['location'],
-                    'reference'         => $tender['reference'],
-                    'contract_duration' => $tender['contract_duration'],
-                    'value_of_contract' => $tender['value_of_contract'],
-                    'deadline'          => $tender['deadline'],
-                    'other_information' => $tender['other_information'],
-                    'filename'          => $this->storePath . $tender['filename'],
-                    'filepath'          => $this->storePath . $tender['filename']
+                    $this->downloadFile(
+                        $contract['filepath'],
+                        $contract['filename']
+                    );
+
+                    $localFile = $this->storePath . $contract['filename'];
+
+                } else {
+
+                    $localFile = null;
+
+                }
+
+                $responseContracts[] = [
+                    'ca_id'                 => $contract['ca_id'],
+                    'organisation'          => $contract['organisation'],
+                    'contracting_authority' => $contract['contracting_authority'],
+                    'contract_notice_no'    => $contract['contract_notice_no'],
+                    'contract_awarded_to'   => $contract['contract_awarded_to'],
+                    'description'           => $contract['description'],
+                    'value_of_contract'     => $contract['value_of_contract'],
+                    'sectors'               => $contract['sectors'],
+                    'cpv_codes'             => $contract['cpv_codes'],
+                    'country'               => $contract['country'],
+                    'publish_date'          => $contract['publish_date'],
+                    'filename'              => $localFile,
+                    'filepath'              => $localFile
                 ];
             }
 
             return [
                 'status'        => 'success',
-                'tenders'       => $responseTenders,
+                'contracts'     => $responseContracts,
                 'last_fetch_id' => $details['fetchid']
             ];
 
