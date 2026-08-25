@@ -24,7 +24,7 @@ $stateFile = __DIR__ . '/contract-award-state.json';
 /**
  * Fetch id to start from the very first time this example is run.
  */
-$initialLastId = 261374;
+$initialLastId = 261375;
 
 /**
  * Reads the stored fetch id, or falls back to the initial one.

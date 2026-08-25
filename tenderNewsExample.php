@@ -1,10 +1,5 @@
 <?php
-require_once 'TenderImpulseClient.php';
-
-/**
- * Local folder where tender documents will be stored.
- */
-$storePath = __DIR__ . '/tender-documents';
+require_once 'TenderImpulseTenderNewsClient.php';
 
 /**
  * Access token provided by Tender Impulse.
@@ -19,12 +14,12 @@ $key = 'your_encryption_key';
 /**
  * File where the last fetch id is stored between runs.
  */
-$stateFile = __DIR__ . '/tender-state.json';
+$stateFile = __DIR__ . '/tender-news-state.json';
 
 /**
  * Fetch id to start from the very first time this example is run.
  */
-$initialLastId = 8156394;
+$initialLastId = 18016;
 
 /**
  * Reads the stored fetch id, or falls back to the initial one.
@@ -51,21 +46,32 @@ function writeLastId(string $stateFile, int $fetchId): void {
     );
 }
 
-$client = new TenderImpulseClient($storePath, $accessToken, $key);
+$client = new TenderImpulseTenderNewsClient($accessToken, $key);
 
 $lastId = readLastId($stateFile, $initialLastId);
 
 echo "Last Id: " . $lastId . PHP_EOL;
 
-$result = $client->getTenders($lastId);
+$result = $client->getTenderNews($lastId);
 
 if ($result['status'] === 'success') {
 
-    echo "Tenders Fetched: " . count($result['tenders']) . PHP_EOL;
+    echo "Tender News Fetched: " . count($result['tender_news']) . PHP_EOL;
 
     echo "Last Fetch Id: " . $result['last_fetch_id'] . PHP_EOL;
 
-    print_r($result['tenders']);
+    // Only the headline fields are printed here. Every article also
+    // carries longdescription, which holds the full article HTML.
+    foreach ($result['tender_news'] as $article) {
+
+        print_r([
+            'blogid'      => $article['blogid'],
+            'blogtitle'   => $article['blogtitle'],
+            'publishdate' => $article['publishdate'],
+            'countries'   => $article['countries'],
+            'sectors'     => $article['sectors']
+        ]);
+    }
 
     // Store the fetch id only after the batch has been handled,
     // so nothing is skipped if the run fails midway.
